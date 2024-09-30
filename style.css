@@ -17,17 +17,18 @@ body {
 
 /* Restliche CSS wie vorher für die Tabelle und weitere Gestaltung */
 
-/* === Header-Container und Logo === */
+/* === Header-Container und Logo für Desktop-Ansicht === */
 .header-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 2rem;
+    padding: 0.5rem 1rem; /* Reduziertes Padding */
     background-color: #1f3a93;
     color: white;
     width: 100%;
     max-width: 100vw;
     box-sizing: border-box;
+    height: auto; /* Keine feste Höhe */
 }
 
 .header-logo {
@@ -577,40 +578,3 @@ input:checked + .slider:before {
     }
 }
 
-@media (max-width: 480px) {
-    /* Weitere Anpassungen für sehr kleine Bildschirme */
-    .header-container {
-        padding: 0.75rem 1rem;
-    }
-
-    h1 {
-        font-size: 1.25rem;
-    }
-
-    .auswahl-container {
-        gap: 1rem;
-    }
-
-    .task-controls {
-        gap: 1rem;
-    }
-
-    .task {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .task-checkbox {
-        margin-top: 1rem;
-    }
-
-    /* Fortschrittsbalken Anpassung */
-    .progress-bar {
-        height: 1rem;
-    }
-
-    #progress-bar-fill {
-        line-height: 1rem;
-        font-size: 0.8rem;
-    }
-}

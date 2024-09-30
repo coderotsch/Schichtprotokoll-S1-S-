@@ -11,7 +11,6 @@ body {
     flex-direction: column;
 }
 
-
 .status-cell.green {
     background-color: #a5d6a7; /* Grün hervorgehoben, wenn beide Checkboxen aktiviert sind */
 }
@@ -35,10 +34,12 @@ body {
     z-index: 1000; /* Sicherstellen, dass der Header über allen Inhalten bleibt */
     height: 60px; /* Feste Höhe für den Header */
 }
+
 /* Platzhalter für den fixierten Header */
 .header-placeholder {
     height: 80px; /* Gleiche Höhe wie der Header, um Platz zu schaffen */
 }
+
 .header-logo {
     height: 2rem;
 }
@@ -68,6 +69,7 @@ main {
     box-sizing: border-box;
     overflow-x: auto;
 }
+
 #maschinen-container th, #maschinen-container td {
     padding: 1rem;
     border-bottom: 1px solid #ddd;
@@ -75,8 +77,6 @@ main {
     vertical-align: middle;
     white-space: nowrap;
 }
-
-
 
 /* === Spaltenbreiten festlegen === */
 #maschinen-container th.presse-header, #maschinen-container td.presse-cell {
@@ -101,7 +101,6 @@ main {
 
 #maschinen-container th.info-header, #maschinen-container td.info-cell {
     width: 500px; /* Größere Spalte für Spezielle Infos */
- 
 }
 
 #maschinen-container th.status-header, #maschinen-container td.status-cell {
@@ -400,7 +399,6 @@ input:checked + .slider:before {
     padding: 1rem;
     box-sizing: border-box;
     border: #004900;
-    
 }
 
 .modal-content {
@@ -464,7 +462,6 @@ input:checked + .slider:before {
     font-size: 1.5rem;
     cursor: pointer;
     color: #7f8c8d;
-
 }
 
 /* Container-Layout mit Flexbox für gleichmäßige vertikale Ausrichtung */
@@ -507,6 +504,7 @@ input:checked + .slider:before {
 #save-btn:hover {
     background-color: #162a6b;
 }
+
 /* Grün hinterlegte Zelle, wenn beide Checkboxen ausgewählt sind */
 .status-cell.green-background {
     background-color: #28a745; /* Grün */
@@ -516,10 +514,12 @@ input:checked + .slider:before {
 #maschinen-container tbody tr {
     border-bottom: 0.5rem solid #004900; /* Dicke Trennlinie zwischen den Maschinen */
 }
+
 /* Trennlinie unter P66 entfernen */
 #maschinen-container tbody tr:nth-child(6) {
     border-bottom: 3px solid #eeecec; /* Dicke Trennlinie zwischen den Maschinen */
 }
+
 .delete-btn {
     background-color: #e74c3c; /* Rot für Lösch-Button */
     color: white;              /* Weißer Text */
@@ -534,8 +534,6 @@ input:checked + .slider:before {
 .delete-btn:hover {
     background-color: #c0392b; /* Dunkleres Rot bei Hover */
 }
-
-
 
 /* === Media Queries für mobile Responsivität === */
 @media (max-width: 1200px) {
@@ -681,52 +679,104 @@ input:checked + .slider:before {
         font-size: 0.85rem;
     }
 }
-
-@media (max-width: 320px) {
-    h1 {
-        font-size: 1rem;
+/* === Verbesserungen für Mobiltelefone === */
+@media (max-width: 480px) {
+    /* Reduziere die Schriftgröße, um Platz zu sparen */
+    body {
+        font-size: 14px;
     }
 
-    .modal-content {
-        max-width: 85%;
-    }
-
-    .task {
-        padding: 0.5rem;
-    }
-
-    .switch {
-        width: 50px;
-        height: 25px;
-    }
-
-    .slider:before {
-        height: 20px;
-        width: 20px;
-    }
-
-    #maschinen-container th,
-    #maschinen-container td {
-        font-size: 0.75rem;
-        padding: 0.3rem;
-    }
-
+    /* Header-Container für kleinere Bildschirme */
     .header-container {
+        padding: 0.5rem 1rem;
+    }
+
+    h1 {
+        font-size: 1.25rem;
+    }
+
+    /* Flexibles Layout für Aufgaben-Container */
+    .task {
         flex-direction: column;
-        align-items: center;
-        padding: 0.5rem 0.5rem;
+        align-items: flex-start;
+        padding: 0.75rem;
     }
 
-    .category-bar {
-        width: 0.5rem;
+    .task-checkbox {
+        margin-top: 0.5rem;
     }
 
+    /* Fortschrittsbalken kleiner für mobile Geräte */
     .progress-bar {
-        height: 0.75rem;
+        height: 1rem;
     }
 
     #progress-bar-fill {
-        font-size: 0.75rem;
-        line-height: 0.75rem;
+        line-height: 1rem;
+        font-size: 0.8rem;
+    }
+
+    /* Kleinere Schriftgröße für Tabellenzellen */
+    #maschinen-container th, #maschinen-container td {
+        font-size: 0.85rem;
+        padding: 0.4rem;
+    }
+
+    /* Tabellenzellen anpassen für bessere Darstellung auf Mobilgeräten */
+    #maschinen-container td {
+        position: relative;
+        padding-left: 50%;
+        white-space: normal; /* Textumbruch zulassen */
+    }
+
+    #maschinen-container td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 1rem;
+        width: 45%;
+        font-weight: bold;
+    }
+
+    /* Modal-Fenster anpassen */
+    .modal-content {
+        padding: 1rem;
+        max-width: 90%;
+    }
+
+    .modal-logo {
+        width: 4rem;
+        height: auto;
+    }
+
+    .close {
+        top: 0.25rem;
+        right: 0.5rem;
+    }
+
+    /* Flexibles Layout für Auswahl-Container */
+    .auswahl-container {
+        gap: 0.5rem;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    /* Button-Größe anpassen */
+    #save-btn {
+        width: 100%;
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    /* Die Buttons für Exporte und das Protokoll */
+    #export-btn, #export-protokoll-btn {
+        width: 100%;
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    /* Spezifische Anpassungen für Modals und Eingabefelder */
+    .modal-content input,
+    .modal-content select {
+        font-size: 0.9rem; /* Kleinere Schriftgröße für Eingaben */
     }
 }

@@ -395,6 +395,7 @@ function setzeEventListenerFuerMaschinen() {
 // Initialisierung beim Laden der Seite
 window.onload = function () {
     ladeMaschinenbereichWennLeer();  // Lade Maschinenbereich
+    setDateToToday()//heutiges Datum setzten
 };
 // Modal öffnen und schließen
 const modal = document.getElementById('taskModal');

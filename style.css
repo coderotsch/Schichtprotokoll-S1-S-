@@ -17,19 +17,20 @@ body {
 
 /* Restliche CSS wie vorher für die Tabelle und weitere Gestaltung */
 
-/* === Header-Container und Logo für Desktop-Ansicht === */
+/* === Header-Container und Logo === */
 .header-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.5rem 1rem; /* Reduziertes Padding */
+    display: flex; /* Flexbox verwenden, um die Inhalte nebeneinander anzuordnen */
+    align-items: center; /* Vertikale Ausrichtung der Inhalte in der Mitte */
+    justify-content: space-between; /* Platz zwischen Logo und Datum */
+    padding: 1rem 2rem;
     background-color: #1f3a93;
     color: white;
     width: 100%;
     max-width: 100vw;
     box-sizing: border-box;
-    height: auto; /* Keine feste Höhe */
+    height: auto; /* Der Header passt sich der Höhe des Inhalts an */
 }
+
 
 .header-logo {
     height: 3rem;
@@ -40,14 +41,18 @@ h1 {
     margin: 0;
 }
 
-/* === Abstand zwischen Header und Tabelle === */
 main {
-    flex-grow: 1;
     padding: 1rem 2rem;
+    flex-grow: 1; /* Dieser Bereich nimmt den restlichen Platz ein */
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
     box-sizing: border-box;
+}
+/* Maschinen-Container gleich breit wie der Header */
+#maschinen-container {
+    margin-top: 2rem; /* Abstand zwischen Header und Tabelle */
+    /* Deine restlichen Stile für den Maschinen-Container */
 }
 
 /* === Maschinen-Container gleich breit wie der Header === */
@@ -72,32 +77,32 @@ main {
 
 /* === Spaltenbreiten festlegen === */
 #maschinen-container th.presse-header, #maschinen-container td.presse-cell {
-    width: 100px; /* Presse Spalte */
+    width: auto; /* Presse Spalte */
 }
 
 #maschinen-container th.facon-header, #maschinen-container td.facon-cell {
-    width: 100px; /* Breite der Facon-Spalte */
+    width: auto; /* Breite der Facon-Spalte */
 }
 
 #maschinen-container th.werkzeug-header, #maschinen-container td.werkzeug-cell {
-    width: 180px; /* Werkzeugzustand Spalte */
+    width: auto; /* Werkzeugzustand Spalte */
 }
 
 #maschinen-container th.maschinen-header, #maschinen-container td.maschinen-cell {
-    width: 180px; /* Maschinenzustand Spalte */
+    width: auto; /* Maschinenzustand Spalte */
 }
 
 #maschinen-container th.auftrag-header, #maschinen-container td.auftrag-cell {
-    width: 100px; /* Nächster Auftrag Spalte */
+    width: auto; /* Nächster Auftrag Spalte */
 }
 
 #maschinen-container th.info-header, #maschinen-container td.info-cell {
-    width: 500px; /* Größere Spalte für Spezielle Infos */
+    width: auto; /* Größere Spalte für Spezielle Infos */
  
 }
 
 #maschinen-container th.status-header, #maschinen-container td.status-cell {
-    width: 180px; /* Status Spalte */
+    width: auto; /* Status Spalte */
 }
 
 /* === Hintergrundfarbe und Textfarbe für Tabellenkopf === */
@@ -241,8 +246,8 @@ input:checked + .slider:before {
     padding: 0.75rem;
     font-size: 1rem;
     width: 100%;
-    max-width: 300px;
-    height: 3rem;
+    max-width: 200px;
+    height: 2rem;
     background-color: #ecf0f1;
     border: none;
     border-radius: 0.5rem;
@@ -437,9 +442,9 @@ input:checked + .slider:before {
 /* Styling für die Dropdowns */
 .select-uebergeber, .select-uebernehmer {
     width: 150px;
-    height: 40px;
-    font-size: 1.2rem;
-    padding: 10px;
+    height: 1.8rem;
+    font-size: 0.8rem;
+    padding: 2px;
     border-radius: 5px;
     border: 1px solid #bdc3c7;
     background-color: #ecf0f1;
@@ -534,6 +539,8 @@ input:checked + .slider:before {
     .header-container {
         flex-direction: column;
         align-items: flex-start;
+        align-items: center;
+        text-align: center;
     }
 
     h1 {
@@ -578,3 +585,42 @@ input:checked + .slider:before {
     }
 }
 
+@media (max-width: 480px) {
+    /* Weitere Anpassungen für sehr kleine Bildschirme */
+    .header-container {
+        padding: 0.75rem 1rem;
+        align-items: center;
+        text-align: center;
+    }
+
+    h1 {
+        font-size: 1.25rem;
+    }
+
+    .auswahl-container {
+        gap: 1rem;
+    }
+
+    .task-controls {
+        gap: 1rem;
+    }
+
+    .task {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .task-checkbox {
+        margin-top: 1rem;
+    }
+
+    /* Fortschrittsbalken Anpassung */
+    .progress-bar {
+        height: 1rem;
+    }
+
+    #progress-bar-fill {
+        line-height: 1rem;
+        font-size: 0.8rem;
+    }
+}

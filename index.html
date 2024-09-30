@@ -8,8 +8,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Schichtübergabeprotokoll</title>
     <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="style.css"> <!-- Korrigierter rel-Attributwert -->
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-    <link rel="stylesheet" href="style.css">
+   
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
@@ -23,9 +24,9 @@
         <h1>Schichtübergabeprotokoll</h1>
         <div class="date">
             <input type="date" id="date-display"> <!-- Hier wird das heutige Datum gesetzt -->
-        </div>
+        </div>    
+    </div> <!-- Korrekte Schließung des Header-Containers -->
     
-
     <!-- Maschinen Platzhalter -->
     <div id="maschinen-container"></div>
 

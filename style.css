@@ -25,19 +25,7 @@ body {
     background-color: #1f3a93;
     color: white;
     width: 100%;
-    max-width: 100vw;
     box-sizing: border-box;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000; /* Sicherstellen, dass der Header über allen Inhalten bleibt */
-    height: 60px; /* Feste Höhe für den Header */
-}
-
-/* Platzhalter für den fixierten Header */
-.header-placeholder {
-    height: 80px; /* Gleiche Höhe wie der Header, um Platz zu schaffen */
 }
 
 .header-logo {
@@ -49,7 +37,7 @@ h1 {
     margin: 0;
 }
 
-/* Verschieben des Hauptinhalts unterhalb des fixierten Headers */
+/* Verschieben des Hauptinhalts */
 main {
     flex-grow: 1;
     padding: 1rem 2rem; /* Padding für den Inhalt */
@@ -113,9 +101,6 @@ main {
     color: white;
     text-align: center;
     vertical-align: middle;
-    position: sticky;
-    top: 0;
-    z-index: 2;
 }
 
 /* === Eingabefelder für Facon und Nächster Auftrag === */
@@ -679,6 +664,7 @@ input:checked + .slider:before {
         font-size: 0.85rem;
     }
 }
+
 /* === Verbesserungen für Mobiltelefone === */
 @media (max-width: 480px) {
     /* Reduziere die Schriftgröße, um Platz zu sparen */

@@ -16,18 +16,14 @@ function speichereErledigteAufgaben() {
 function taskErledigt(checkbox, aufgabenText, aufgabenSteller, aufgabenErlediger) {
     const datum = new Date().toLocaleDateString(); // Datum in lesbarem Format
     if (checkbox.checked) {
-        // Überprüfen, ob die Aufgabe bereits existiert
         if (!erledigteAufgaben.some(aufgabe => aufgabe.task === aufgabenText)) {
-            // Aufgabe zur Liste der erledigten Aufgaben hinzufügen
             erledigteAufgaben.push({ task: aufgabenText, datum: datum, steller: aufgabenSteller, erlediger: aufgabenErlediger });
-            unerledigteAufgaben = unerledigteAufgaben.filter(aufgabe => aufgabe.task !== aufgabenText); // Entferne sie von unerledigten
+            unerledigteAufgaben = unerledigteAufgaben.filter(aufgabe => aufgabe.task !== aufgabenText);
         }
     } else {
-        // Wenn Aufgabe abgewählt wird, zurück in unerledigte Aufgaben
         erledigteAufgaben = erledigteAufgaben.filter(aufgabe => aufgabe.task !== aufgabenText);
         unerledigteAufgaben.push({ task: aufgabenText, steller: aufgabenSteller, erlediger: aufgabenErlediger });
     }
-    // Liste im Local Storage speichern und aktualisieren
     speichereErledigteAufgaben();
     speichereUnerledigteAufgaben();
     zeigeErledigteAufgaben();
@@ -39,7 +35,7 @@ function zeigeUnerledigteAufgaben() {
     const taskContainer = document.getElementById('task-container');
     taskContainer.innerHTML = ''; // Container leeren
 
-    unerledigteAufgaben.forEach(function(aufgabe) {
+    unerledigteAufgaben.forEach(function (aufgabe) {
         const taskElement = document.createElement('div');
         taskElement.classList.add('task');
         taskElement.setAttribute('data-category', aufgabe.category || 'allgemein');
@@ -56,8 +52,16 @@ function zeigeUnerledigteAufgaben() {
 
         taskContainer.appendChild(taskElement);
 
+        // Markiere als erledigt, falls vorhanden
+        const checkbox = taskElement.querySelector('.mark-done');
+        const erledigteAufgabe = erledigteAufgaben.find(item => item.task === aufgabe.task);
+        if (erledigteAufgabe) {
+            checkbox.checked = true;
+            taskElement.classList.add('done');
+        }
+
         // Event Listener für die Checkbox, um Aufgabe als erledigt zu markieren
-        taskElement.querySelector('.mark-done').addEventListener('change', function() {
+        checkbox.addEventListener('change', function () {
             taskErledigt(this, aufgabe.task, aufgabe.steller, aufgabe.erlediger);
             if (this.checked) {
                 taskElement.classList.add('done');
@@ -74,7 +78,7 @@ function zeigeErledigteAufgaben() {
     const erledigteAufgabenListe = document.getElementById('erledigte-aufgaben-liste');
     erledigteAufgabenListe.innerHTML = ''; // Liste leeren
 
-    erledigteAufgaben.forEach(function(aufgabe, index) {
+    erledigteAufgaben.forEach(function (aufgabe, index) {
         const li = document.createElement('li');
         li.textContent = `${aufgabe.task} (Erledigt am: ${aufgabe.datum}, Steller: ${aufgabe.steller}, Erlediger: ${aufgabe.erlediger})`;
 
@@ -85,7 +89,7 @@ function zeigeErledigteAufgaben() {
         deleteButton.style.marginLeft = '10px';
 
         // Event Listener zum Löschen der Aufgabe
-        deleteButton.addEventListener('click', function() {
+        deleteButton.addEventListener('click', function () {
             löscheErledigteAufgabe(index);
         });
 
@@ -127,11 +131,12 @@ document.getElementById('add-task-btn').addEventListener('click', () => {
 });
 
 // Funktion zum Anzeigen der unerledigten Aufgaben beim Laden der Seite
-window.onload = function() {
+window.onload = function () {
     setDateToToday();  // Setze das heutige Datum
-    loadMaschinen();   // Maschinen laden
+    ladeMaschinenbereich();   // Maschinenbereich laden
     zeigeUnerledigteAufgaben(); // Zeige gespeicherte unerledigte Aufgaben
     zeigeErledigteAufgaben();   // Zeige gespeicherte erledigte Aufgaben
+    updateProgress();  // Fortschrittsbalken aktualisieren
 };
 
 // Setze das heutige Datum im Datumsfeld
@@ -160,7 +165,6 @@ document.getElementById('save-btn').addEventListener('click', function () {
     const dateInput = document.getElementById('date-display').value || 'default-date';
     const formattedDate = dateInput.replace(/-/g, '_');
 
-    // Verwende html2canvas, um den Screenshot des Elements zu erstellen
     html2canvas(element).then(canvas => {
         const link = document.createElement('a');
         link.href = canvas.toDataURL('image/png');
@@ -176,81 +180,72 @@ function exportiereAlsExcel() {
         return;
     }
 
-    // Erstelle ein neues Workbook
     const wb = XLSX.utils.book_new();
     const wsData = [['Aufgabe', 'Datum der Erledigung', 'Aufgabensteller', 'Erlediger']]; // Header
 
-    // Füge die erledigten Aufgaben hinzu
     erledigteAufgaben.forEach(aufgabe => {
         wsData.push([aufgabe.task, aufgabe.datum, aufgabe.steller, aufgabe.erlediger]);
     });
 
-    // Erstelle ein neues Worksheet
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     XLSX.utils.book_append_sheet(wb, ws, "Erledigte Aufgaben");
-
-    // Speichere das Workbook als Excel-Datei
     XLSX.writeFile(wb, "erledigte_aufgaben.xlsx");
 }
 
-// Button für den Excel-Export
 document.getElementById('export-btn').addEventListener('click', exportiereAlsExcel);
 
-// Funktion zum Laden der Maschinen.html
-function loadMaschinen() {
-    fetch('maschinen.html')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Netzwerkantwort war nicht ok.');
-            }
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById('maschinen-container').innerHTML = data;
-        })
-        .catch(error => {
-            console.error('Es gab ein Problem mit dem Fetch-Vorgang:', error);
-        });
+// Funktion zum Speichern des Maschinenbereichs im Local Storage
+function speichereMaschinenbereich() {
+    const maschinenStatus = [];
+
+    // Speichere den Status für jede Maschine
+    document.querySelectorAll('tbody tr').forEach((row, index) => {
+        const maschinenData = {
+            facon: document.getElementById(`facon${index + 61}`).value,
+            toolChecked: document.getElementById(`tool-status${index + 61}`).checked,
+            machineChecked: document.getElementById(`machine-status${index + 61}`).checked,
+            info: document.getElementById(`info${index + 61}`).value,
+            auftrag: document.getElementById(`auftrag${index + 61}`).value,
+            adaptiert: document.getElementById(`status${index + 61}-adaptiert`).checked,
+            material: document.getElementById(`status${index + 61}-material`).checked
+        };
+        maschinenStatus.push(maschinenData);
+    });
+
+    localStorage.setItem('maschinenBereich', JSON.stringify(maschinenStatus));
 }
 
-// Überprüfen, ob beide Checkboxen aktiviert sind und dann die Zelle grün färben
-document.querySelectorAll('.status-column').forEach(function (column) {
-    const checkboxes = column.querySelectorAll('.status-checkbox');
-    const statusCell = column.closest('.status-cell');
-
-    checkboxes.forEach(function (checkbox) {
-        checkbox.addEventListener('change', function () {
-            const bothChecked = Array.from(checkboxes).every(chk => chk.checked);
-
-            if (bothChecked) {
-                statusCell.classList.add('green');
-            } else {
-                statusCell.classList.remove('green');
-            }
+// Funktion zum Laden des Maschinenbereichs aus dem Local Storage
+function ladeMaschinenbereich() {
+    const gespeicherterMaschinenBereich = JSON.parse(localStorage.getItem('maschinenBereich'));
+    if (gespeicherterMaschinenBereich) {
+        gespeicherterMaschinenBereich.forEach((item, index) => {
+            document.getElementById(`facon${index + 61}`).value = item.facon || '';
+            document.getElementById(`tool-status${index + 61}`).checked = item.toolChecked || false;
+            document.getElementById(`machine-status${index + 61}`).checked = item.machineChecked || false;
+            document.getElementById(`info${index + 61}`).value = item.info || '';
+            document.getElementById(`auftrag${index + 61}`).value = item.auftrag || '';
+            document.getElementById(`status${index + 61}-adaptiert`).checked = item.adaptiert || false;
+            document.getElementById(`status${index + 61}-material`).checked = item.material || false;
         });
-    });
-});
-// Modal öffnen und schließen
-const modal = document.getElementById('taskModal');
-const newTaskBtn = document.getElementById('new-task-btn');
-const closeModal = document.getElementById('close-modal');
-
-newTaskBtn.addEventListener('click', () => {
-    modal.style.display = 'flex'; // Modal wird geöffnet
-});
-
-closeModal.addEventListener('click', () => {
-    modal.style.display = 'none'; // Modal wird geschlossen
-});
-
-// Schließen des Modals, wenn außerhalb des Modals geklickt wird
-window.addEventListener('click', function(event) {
-    if (event.target === modal) {
-        modal.style.display = 'none'; // Modal wird geschlossen
     }
+    setzeEventListenerFuerMaschinen(); // Event Listener setzen
+}
 
-});
+// Funktion zum Setzen von Event-Listenern für die Maschinen-Checkboxen und Eingabefelder
+function setzeEventListenerFuerMaschinen() {
+    const inputs = document.querySelectorAll('input, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('change', speichereMaschinenbereich);
+    });
+}
 
+// Rufe beim Laden der Seite die Ladefunktion auf
+window.onload = function () {
+    ladeMaschinenbereich();
+};
+
+// Benutzerhinweis für iOS
 if (navigator.userAgent.match(/(iPhone|iPad|iPod)/i)) {
     alert('Fügen Sie die App zum Startbildschirm hinzu, um sie wie eine native App zu nutzen.');
-  }
+}

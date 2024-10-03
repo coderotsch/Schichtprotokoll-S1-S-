@@ -165,8 +165,8 @@ function resetStyles(element, originalStyles) {
     }
 }
 
-// Funktion zur Erstellung des PNGs mit Übergeber, Übernehmer und Datum im europäischen Format
-document.getElementById('save-png-btn').addEventListener('click', function () {
+// Funktion zur Erstellung des PDFs mit Übergeber, Übernehmer und Datum im europäischen Format
+document.getElementById('save-pdf-btn').addEventListener('click', function () {
     const dateInput = document.getElementById('date-display').value || 'default-date';
 
     // Formatieren des Datums im europäischen Format TT.MM.JJJJ
@@ -176,7 +176,8 @@ document.getElementById('save-png-btn').addEventListener('click', function () {
     const year = dateObject.getFullYear();
     const europeanDate = `${day}.${month}.${year}`;
 
-    const formattedDate = dateInput.replace(/-/g, '_'); // Für Dateiname im PNG
+    const formattedDate = dateInput.replace(/-/g, '_'); // Für Dateiname im PDF
+    const pdf = new jsPDF('landscape', 'mm', 'a4'); // Querformat PDF
 
     // Übergeber und Übernehmer Werte aus den Dropdowns holen
     const uebergeber = document.getElementById('uebergeber').value;
@@ -208,12 +209,11 @@ document.getElementById('save-png-btn').addEventListener('click', function () {
         height: contentElement.scrollHeight // Setze Höhe auf den gesamten Inhalt
     }).then(canvas => {
         const imgData = canvas.toDataURL('image/png');
+        const imgWidth = 297;  // Querformat Breite in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;  // Verhältnis von Breite zu Höhe berechnen
 
-        // Erstellung eines Link-Elements zum Herunterladen der Datei
-        const link = document.createElement('a');
-        link.href = imgData;
-        link.download = `Schichtprotokoll_${formattedDate}.png`;
-        link.click();
+        // Füge das Bild zur PDF hinzu und fülle die Seite aus
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
 
         // Ursprüngliche Stile zurücksetzen
         resetStyles(contentElement, originalContentStyles);
@@ -221,11 +221,22 @@ document.getElementById('save-png-btn').addEventListener('click', function () {
         // Entferne das temporäre Übergeber/Übernehmer/Datum-Element aus dem Dokument
         headerContainer.removeChild(uebergabeInfoElement);
 
+        // Speichern des PDFs als Blob
+        pdfOutput = pdf.output('blob');
+        const blobUrl = URL.createObjectURL(pdfOutput);
+
+        // Erstellung eines Link-Elements zum Herunterladen der Datei
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `Schichtprotokoll_${formattedDate}.pdf`;
+        link.click();
+
+        // Speicherverwaltung, Blob-URL wieder freigeben
+        URL.revokeObjectURL(blobUrl);
     }).catch((error) => {
         console.error("Fehler beim Erstellen des Screenshots vom Inhaltselement:", error);
     });
 });
-
 
 
 

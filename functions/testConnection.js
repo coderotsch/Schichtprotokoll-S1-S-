@@ -1,23 +1,37 @@
 // netlify/functions/testConnection.js
-const { connectToDatabase } = require('./mongodb');
+const { MongoClient } = require('mongodb');
 
 exports.handler = async function(event, context) {
   try {
-    // Versuche die Verbindung zur Datenbank herzustellen
-    const db = await connectToDatabase(process.env.MONGODB_URI);
-    
-    // Prüfe, ob die Verbindung erfolgreich war, indem du die Datenbank-Namen abfragst
+    // Verbindungszeichenfolge aus den Umgebungsvariablen abrufen
+    const client = new MongoClient(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    // Verbindung zur MongoDB herstellen
+    await client.connect();
+    const db = client.db('protokoll');  // Name der Datenbank
+
+    // Sammlungen abrufen, um die Verbindung zu testen
     const collections = await db.listCollections().toArray();
-    
+
+    // Erfolgreiche Rückgabe
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Erfolgreich mit MongoDB verbunden!', collections }),
+      body: JSON.stringify({
+        message: 'Erfolgreich mit MongoDB verbunden!',
+        collections, // Gibt die vorhandenen Sammlungen in der Datenbank zurück
+      }),
     };
   } catch (error) {
-    // Gebe im Fehlerfall die entsprechende Fehlermeldung zurück
+    // Fehler abfangen und zurückgeben
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Fehler beim Herstellen der Verbindung zu MongoDB', details: error.message }),
+      body: JSON.stringify({
+        error: 'Fehler beim Herstellen der Verbindung zu MongoDB',
+        details: error.message,
+      }),
     };
   }
 };

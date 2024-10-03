@@ -221,12 +221,23 @@ document.getElementById('save-pdf-btn').addEventListener('click', function () {
         // Entferne das temporäre Übergeber/Übernehmer/Datum-Element aus dem Dokument
         headerContainer.removeChild(uebergabeInfoElement);
 
-        // Speichere das PDF
-        pdf.save(`Schichtprotokoll_${formattedDate}.pdf`);
+        // Speichern des PDFs als Blob
+        pdfOutput = pdf.output('blob');
+        const blobUrl = URL.createObjectURL(pdfOutput);
+
+        // Erstellung eines Link-Elements zum Herunterladen der Datei
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `Schichtprotokoll_${formattedDate}.pdf`;
+        link.click();
+
+        // Speicherverwaltung, Blob-URL wieder freigeben
+        URL.revokeObjectURL(blobUrl);
     }).catch((error) => {
         console.error("Fehler beim Erstellen des Screenshots vom Inhaltselement:", error);
     });
 });
+
 
 
 

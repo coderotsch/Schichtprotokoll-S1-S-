@@ -1,8 +1,0 @@
-[build]
-  functions = "netlify/functions"
-
-# Optional: Gebe die Basis-URL deines Projekts an
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200

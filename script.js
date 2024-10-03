@@ -1,6 +1,3 @@
-
-
-
 // Array zur Speicherung der erledigten und unerledigten Aufgaben
 let unerledigteAufgaben = JSON.parse(localStorage.getItem('unerledigteAufgaben')) || [];
 let erledigteAufgaben = JSON.parse(localStorage.getItem('erledigteAufgaben')) || [];
@@ -149,132 +146,112 @@ function setDateToToday() {
     document.getElementById('date-display').value = `${year}-${month}-${day}`;
 }
 
-// Schichtprotokoll als Bild speichern
-document.getElementById('save-btn').addEventListener('click', function () {
-    const element = document.body;
-    const dateInput = document.getElementById('date-display').value || 'default-date';
-    const formattedDate = dateInput.replace(/-/g, '_');
+// Bibliotheken einbinden
+const { jsPDF } = window.jspdf;  // Erstelle eine Referenz zu jsPDF
+// Gemeinsame Funktion zum temporären Anwenden von CSS-Stilen
+function applyTempStyles(element, styles) {
+    const originalStyles = {};
+    for (const property in styles) {
+        originalStyles[property] = element.style[property];
+        element.style[property] = styles[property];
+    }
+    return originalStyles; // Ursprüngliche Stile zurückgeben
+}
 
-    html2canvas(element).then(canvas => {
-        const link = document.createElement('a');
-        link.href = canvas.toDataURL('image/png');
-        link.download = `Schichtprotokoll_${formattedDate}.png`;
-        link.click();
+// Gemeinsame Funktion zum Zurücksetzen der ursprünglichen Stile
+function resetStyles(element, originalStyles) {
+    for (const property in originalStyles) {
+        element.style[property] = originalStyles[property];
+    }
+}
+
+// Funktion zur Erstellung des PDFs mit Übergeber, Übernehmer und Datum im europäischen Format
+document.getElementById('save-pdf-btn').addEventListener('click', function () {
+    const dateInput = document.getElementById('date-display').value || 'default-date';
+
+    // Formatieren des Datums im europäischen Format TT.MM.JJJJ
+    const dateObject = new Date(dateInput);
+    const day = String(dateObject.getDate()).padStart(2, '0');
+    const month = String(dateObject.getMonth() + 1).padStart(2, '0'); // Monate starten bei 0
+    const year = dateObject.getFullYear();
+    const europeanDate = `${day}.${month}.${year}`;
+
+    const formattedDate = dateInput.replace(/-/g, '_'); // Für Dateiname im PDF
+    const pdf = new jsPDF('landscape', 'mm', 'a4'); // Querformat PDF
+
+    // Übergeber und Übernehmer Werte aus den Dropdowns holen
+    const uebergeber = document.getElementById('uebergeber').value;
+    const uebernehmer = document.getElementById('uebernehmer').value;
+
+    // Temporär Übergeber, Übernehmer und das Datum als Text zum Dokument hinzufügen
+    const uebergabeInfoElement = document.createElement('div');
+    uebergabeInfoElement.innerHTML = `<strong>Übergeber:</strong> ${uebergeber} | <strong>Übernehmer:</strong> ${uebernehmer} | <strong>Datum:</strong> ${europeanDate}`;
+    uebergabeInfoElement.style.fontSize = '16px';  // Ändere die Schriftgröße
+    uebergabeInfoElement.style.marginBottom = '20px'; // Füge etwas Abstand hinzu
+
+    const headerContainer = document.querySelector('.header-container');
+    headerContainer.appendChild(uebergabeInfoElement);  // Füge Übergeber/Übernehmer zum Header hinzu
+
+    // Temporäre Stilanwendung für die "große Bildschirm"-Ansicht
+    const contentElement = document.body;
+
+    const originalContentStyles = applyTempStyles(contentElement, {
+        width: '1920px',  // Simuliere einen großen Bildschirm (1920px Breite)
+        height: `${contentElement.scrollHeight}px`, // Setze Höhe entsprechend des gesamten Inhalts
+        overflow: 'visible',
+        transform: 'scale(1)'  // Kein Zoom, normale Skalierung
+    });
+
+    html2canvas(contentElement, {
+        scale: 2, // Erhöhe die Auflösung für schärfere Screenshots
+        useCORS: true,  // Falls externe Bilder geladen werden müssen
+        width: 1920,  // Die Breite, die wir simulieren
+        height: contentElement.scrollHeight // Setze Höhe auf den gesamten Inhalt
+    }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = 297;  // Querformat Breite in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;  // Verhältnis von Breite zu Höhe berechnen
+
+        // Füge das Bild zur PDF hinzu und fülle die Seite aus
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+
+        // Ursprüngliche Stile zurücksetzen
+        resetStyles(contentElement, originalContentStyles);
+
+        // Entferne das temporäre Übergeber/Übernehmer/Datum-Element aus dem Dokument
+        headerContainer.removeChild(uebergabeInfoElement);
+
+        // Speichere das PDF
+        pdf.save(`Schichtprotokoll_${formattedDate}.pdf`);
+    }).catch((error) => {
+        console.error("Fehler beim Erstellen des Screenshots vom Inhaltselement:", error);
     });
 });
 
 
 
-// Funktion zum Exportieren der erledigten Aufgaben als Excel-Dokument
-function exportiereAlsExcel() {
-    if (erledigteAufgaben.length === 0) {
-        alert("Keine erledigten Aufgaben zum Exportieren.");
-        return;
-    }
 
-    const wb = XLSX.utils.book_new();
-    const wsData = [['Aufgabe', 'Datum der Erledigung', 'Aufgabensteller', 'Erlediger']]; // Header
+// Modal öffnen und schließen
+const modal = document.getElementById('taskModal');
+const newTaskBtn = document.getElementById('new-task-btn');
+const closeModal = document.getElementById('close-modal');
 
-    erledigteAufgaben.forEach(aufgabe => {
-        wsData.push([aufgabe.task, aufgabe.datum, aufgabe.steller, aufgabe.erlediger]);
-    });
+newTaskBtn.addEventListener('click', () => {
+    modal.style.display = 'flex';
+});
 
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    XLSX.utils.book_append_sheet(wb, ws, "Erledigte Aufgaben");
-    XLSX.writeFile(wb, "erledigte_aufgaben.xlsx");
-}
+closeModal.addEventListener('click', () => {
+    modal.style.display = 'none';
+});
 
-document.getElementById('export-btn').addEventListener('click', exportiereAlsExcel);
-// Funktion zum Laden der Maschinen-HTML
+// Funktion zum Laden der Maschinen-HTML und Speichern im Local Storage
 function ladeMaschinenHTML(callback) {
     fetch('maschinen.html')
         .then(response => response.text())
         .then(data => {
             document.getElementById('maschinen-container').innerHTML = data;
             console.log('Maschinen-HTML geladen, jetzt DOM-Elemente prüfen.');
-
-            // Vergewissere dich, dass die Elemente existieren
-            if (document.getElementById('facon61')) {
-                console.log('facon61 Element gefunden.');
-            } else {
-                console.error('facon61 Element NICHT gefunden.');
-            }
-
-            if (callback) {
-                callback();  // Ruft das Callback auf, um danach weitere Funktionen auszuführen
-            }
-        })
-        .catch(error => {
-            console.error('Fehler beim Laden der Maschinen-HTML:', error);
-        });
-}
-
-// Funktion zum Laden der Maschinen-HTML
-function ladeMaschinenHTML(callback) {
-    fetch('maschinen.html')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('maschinen-container').innerHTML = data;
-            console.log('Maschinen-HTML geladen, jetzt DOM-Elemente prüfen.');
-
-            // Vergewissere dich, dass die Elemente existieren
-            if (document.getElementById('facon61')) {
-                console.log('facon61 Element gefunden.');
-            } else {
-                console.error('facon61 Element NICHT gefunden.');
-            }
-
-            if (callback) {
-                callback();  // Ruft das Callback auf, um danach weitere Funktionen auszuführen
-            }
-        })
-        .catch(error => {
-            console.error('Fehler beim Laden der Maschinen-HTML:', error);
-        });
-}
-
-// Funktion zum Laden der Maschinen-HTML
-function ladeMaschinenHTML(callback) {
-    fetch('maschinen.html')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('maschinen-container').innerHTML = data;
-            console.log('Maschinen-HTML geladen, jetzt DOM-Elemente prüfen.');
-
-            // Vergewissere dich, dass die Elemente existieren
-            if (document.getElementById('facon61')) {
-                console.log('facon61 Element gefunden.');
-            } else {
-                console.error('facon61 Element NICHT gefunden.');
-            }
-
-            if (callback) {
-                callback();  // Ruft das Callback auf, um danach weitere Funktionen auszuführen
-            }
-        })
-        .catch(error => {
-            console.error('Fehler beim Laden der Maschinen-HTML:', error);
-        });
-}
-
-// Funktion zum Laden der Maschinen-HTML
-function ladeMaschinenHTML(callback) {
-    fetch('maschinen.html')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('maschinen-container').innerHTML = data;
-            console.log('Maschinen-HTML geladen, jetzt DOM-Elemente prüfen.');
-
-            // Vergewissere dich, dass die Elemente existieren
-            if (document.getElementById('facon61')) {
-                console.log('facon61 Element gefunden.');
-            } else {
-                console.error('facon61 Element NICHT gefunden.');
-            }
-
-            if (callback) {
-                callback();  // Ruft das Callback auf, um danach weitere Funktionen auszuführen
-            }
+            callback();
         })
         .catch(error => {
             console.error('Fehler beim Laden der Maschinen-HTML:', error);
@@ -309,8 +286,6 @@ function ladeMaschinenbereich() {
     if (!gespeicherterMaschinenBereich) {
         console.log("Keine Maschinendaten im Local Storage gefunden.");
     } else {
-        console.log('Geladene Maschinen-Daten aus localStorage:', gespeicherterMaschinenBereich);
-
         gespeicherterMaschinenBereich.forEach((item, index) => {
             const faconInput = document.getElementById(`facon${index + 61}`);
             const toolCheckbox = document.getElementById(`tool-status${index + 61}`);
@@ -330,10 +305,6 @@ function ladeMaschinenbereich() {
                 auftragInput.value = item.auftrag || '';
                 adaptiertCheckbox.checked = item.adaptiert || false;
                 materialCheckbox.checked = item.material || false;
-
-                console.log(`Maschine ${index + 61} erfolgreich geladen.`);
-            } else {
-                console.warn(`Eines der Elemente für Maschine ${index + 61} wurde nicht gefunden.`);
             }
         });
     }
@@ -364,20 +335,12 @@ function speichereMaschinenbereich() {
                 material: material
             };
 
-            console.log(`Speichere Daten für Maschine ${index + 61}:`, maschinenData);
             maschinenStatus.push(maschinenData);
-        } else {
-            console.error(`Element facon${index + 61} nicht gefunden!`);
         }
     }
 
     // Speichere die Daten im LocalStorage
-    console.log("Speichere Maschinen-Daten im Local Storage:", maschinenStatus);
     localStorage.setItem('maschinenBereich', JSON.stringify(maschinenStatus));
-
-    // Überprüfen, ob die Daten korrekt im LocalStorage sind
-    const gespeicherteDaten = JSON.parse(localStorage.getItem('maschinenBereich'));
-    console.log("Überprüfe gespeicherte Maschinen-Daten:", gespeicherteDaten);
 }
 
 // Funktion zum Setzen von Event Listenern auf den Maschinenfeldern
@@ -386,26 +349,7 @@ function setzeEventListenerFuerMaschinen() {
 
     inputs.forEach(input => {
         input.addEventListener('change', () => {
-            console.log(`${input.id} wurde geändert, speichere erneut.`);
             speichereMaschinenbereich(); // Speichern bei jeder Änderung
         });
     });
 }
-
-// Initialisierung beim Laden der Seite
-window.onload = function () {
-    ladeMaschinenbereichWennLeer();  // Lade Maschinenbereich
-    setDateToToday()//heutiges Datum setzten
-};
-// Modal öffnen und schließen
-const modal = document.getElementById('taskModal');
-const newTaskBtn = document.getElementById('new-task-btn');
-const closeModal = document.getElementById('close-modal');
-
-newTaskBtn.addEventListener('click', () => {
-    modal.style.display = 'flex';
-});
-
-closeModal.addEventListener('click', () => {
-    modal.style.display = 'none';
-});

@@ -221,23 +221,32 @@ document.getElementById('save-pdf-btn').addEventListener('click', function () {
         // Entferne das temporäre Übergeber/Übernehmer/Datum-Element aus dem Dokument
         headerContainer.removeChild(uebergabeInfoElement);
 
-        // Speichern des PDFs als Blob
-        pdfOutput = pdf.output('blob');
-        const blobUrl = URL.createObjectURL(pdfOutput);
+        // Testen, ob das Gerät Safari auf iOS ist
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-        // Erstellung eines Link-Elements zum Herunterladen der Datei
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = `Schichtprotokoll_${formattedDate}.pdf`;
-        link.click();
+        if (isSafari && isIOS) {
+            // Öffne das PDF direkt im neuen Tab für Safari-Nutzer
+            const pdfOutput = pdf.output('bloburl');
+            window.open(pdfOutput, '_blank');
+        } else {
+            // Speichern des PDFs als Blob für andere Browser
+            const pdfOutput = pdf.output('blob');
+            const blobUrl = URL.createObjectURL(pdfOutput);
 
-        // Speicherverwaltung, Blob-URL wieder freigeben
-        URL.revokeObjectURL(blobUrl);
+            // Erstellung eines Link-Elements zum Herunterladen der Datei
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = `Schichtprotokoll_${formattedDate}.pdf`;
+            link.click();
+
+            // Speicherverwaltung, Blob-URL wieder freigeben
+            URL.revokeObjectURL(blobUrl);
+        }
     }).catch((error) => {
         console.error("Fehler beim Erstellen des Screenshots vom Inhaltselement:", error);
     });
 });
-
 
 
 

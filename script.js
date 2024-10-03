@@ -202,6 +202,7 @@ document.getElementById('save-pdf-btn').addEventListener('click', function () {
         transform: 'scale(1)'  // Kein Zoom, normale Skalierung
     });
 
+    // Verwende html2canvas, um den Screenshot zu erstellen
     html2canvas(contentElement, {
         scale: 2, // Erhöhe die Auflösung für schärfere Screenshots
         useCORS: true,  // Falls externe Bilder geladen werden müssen
@@ -247,6 +248,7 @@ document.getElementById('save-pdf-btn').addEventListener('click', function () {
         console.error("Fehler beim Erstellen des Screenshots vom Inhaltselement:", error);
     });
 });
+
 
 
 

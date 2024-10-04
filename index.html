@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Schichtübergabeprotokoll</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+   
+    <!-- Einmaliger Import von Sortable, xlsx, html2canvas und jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+    <!-- Header mit Logo und Datumsfeld -->
+    <div class="header-container">
+        <img src="Schiess Logo.PNG" alt="Logo" class="header-logo">
+        <h1>Schichtübergabeprotokoll</h1>
+        <div class="date">
+            <input type="date" id="date-display">
+        </div>    
+    </div>
+
+    <!-- Maschinen Platzhalter -->
+    <div id="maschinen-container"></div>
+
+    <!-- Aufgabenbereich -->
+    <div id="task-container-wrapper">
+        <div id="task-container"></div>
+    </div>
+
+    <!-- Task Controls -->
+    <div class="task-controls">
+        <button id="new-task-btn">Neue Aufgabe</button>
+        <select id="task-filter" onchange="filterTasks()">
+            <option value="all">Alle</option>
+            <option value="done">Erledigte</option>
+            <option value="notdone">Nicht erledigte</option>
+        </select>
+    </div>
+
+    <!-- Übergeber und Übernehmer Auswahlfelder -->
+    <div class="auswahl-container">
+        <div>
+            <label for="uebergeber">Übergeber:</label>
+            <select id="uebergeber" class="select-uebergeber">
+                <option value="dekin_kolic">Dekin Kolic</option>
+                <option value="avdi_jahmuratay">Avdi Jahmuratay</option>
+                <option value="roger_schlaepfer">Roger Schläpfer</option>
+            </select>
+        </div>
+        <div>
+            <label for="uebernehmer">Übernehmer:</label>
+            <select id="uebernehmer" class="select-uebernehmer">
+                <option value="dekin_kolic">Dekin Kolic</option>
+                <option value="avdi_jahmuratay">Avdi Jahmuratay</option>
+                <option value="roger_schlaepfer">Roger Schläpfer</option>
+            </select>
+        </div>
+        <div class="save-btn-container">
+            <button id="save-btn">als Bild speichern</button>
+        </div>
+    </div>
+
+    <!-- Modal Fenster für neue Aufgabe -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-modal">&times;</span>
+            <h2>Neue Aufgabe</h2>
+            <div class="modal-logo-container">
+                <img src="Schiess Logo.PNG" alt="Logo" class="modal-logo">
+            </div>
+    
+            <label for="modal-task-steller">Wer hat die Aufgabe gestellt?</label>
+            <input type="text" id="modal-task-steller" placeholder="Wer hat die Aufgabe gestellt?">
+    
+            <label for="modal-task-input">Aufgabe eingeben</label>
+            <input type="text" id="modal-task-input" placeholder="Aufgabe eingeben">
+    
+            <label for="modal-priority-select">Priorität auswählen</label>
+            <select id="modal-priority-select">
+                <option value="" disabled selected hidden>Priorität auswählen</option>
+                <option value="hoch">Hoch</option>
+                <option value="mittel">Mittel</option>
+                <option value="gering">Gering</option>
+            </select>
+    
+            <label for="modal-category-select">Kategorie auswählen</label>
+            <select id="modal-category-select">
+                <option value="" disabled selected hidden>Kategorie auswählen</option>
+                <option value="produktion">Produktion</option>
+                <option value="wartung">Wartung</option>
+                <option value="reparatur">Reparatur</option>
+            </select>
+    
+            <label for="modal-due-date">Fälligkeitsdatum</label>
+            <input type="date" id="modal-due-date">
+    
+            <label for="modal-task-erlediger">Wer erledigt die Aufgabe?</label>
+            <input type="text" id="modal-task-erlediger" placeholder="Wer erledigt die Aufgabe?">
+    
+            <button id="add-task-btn">Aufgabe hinzufügen</button>
+        </div>
+    </div>
+       
+    <div class="button-container">
+        <button id="export-btn">Erledigte Aufgaben als Excel speichern</button>
+        <button id="save-pdf-btn">Speichern als PDF</button>
+  </div>
+    
+    <!-- Liste der erledigten Aufgaben -->
+    <h2>Erledigte Aufgaben</h2>
+    <ul id="erledigte-aufgaben-liste"></ul>
+
+    <!-- Service Worker Registrierung -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then((registration) => {
+                    console.log('Service Worker registriert:', registration.scope);
+                })
+                .catch((error) => {
+                    console.log('Service Worker Registrierung fehlgeschlagen:', error);
+                });
+        }
+    </script>
+
+    <!-- Hauptskript -->
+    <script src="script.js?v=1.0.3"></script> <!-- Aktualisierung der Skript-Version für Cache-Busting -->
+
+</body>
+</html>

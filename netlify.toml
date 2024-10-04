@@ -1,0 +1,11 @@
+[build]
+  functions = "netlify/functions"  # Verzeichnis für die Netlify Functions
+  publish = "."                    # Verzeichnis für das Frontend (z.B. index.html)
+
+[build.environment]
+  MONGODB_URI = "mongodb+srv://schlaepferroger:Rotscher2525%21@protokoll.5cdp6.mongodb.net/deinedatenbank?retryWrites=true&w=majority&appName=Protokoll"  # Deine MongoDB-Verbindung
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
